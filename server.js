@@ -54,23 +54,14 @@ const server = http.createServer((req, res) => {
       let indexRead = fs.readFileSync('./public/index.html', 'utf-8');
       let elementHTML = `<li>
 <a href="/${element}.html">${element}</a>
-</li>`;
-      let array = indexRead.split('\n');
-      console.log(array);
-      console.log(array.splice(18, 0, elementHTML));
-      console.log(array);
+</li>
+<!-- new  -->`;
+      let elementInsert = indexRead.replace(/(<!-- new  -->)/g, elementHTML);
+      console.log(elementInsert);
 
-
-
-        // let indexElements = document.querySelector('#elements');
-        // let li = document.createElement('li');
-        // let a = document.createElement('a');
-        // a.setAttribute('href', `/${element}.html`);
-        // let elem = document.querySelector(`a[href = "/${element}.html"]`);
-        // elem.innerHTML = `${element}`;
-
-        // indexElements.appendChild(li);
-        // li.appendChild(a);
+      fs.writeFile('./public/index.html', elementInsert, 'utf-8', (err) => {
+          console.log('new element added!');
+      });
 
    res.end(data);
 
