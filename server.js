@@ -1,11 +1,12 @@
 /*jshint esversion: 6*/
+let number = 2;
 const http = require('http');
 const fs = require('fs');
 const querystring = require('querystring');
 
 const server = http.createServer((req, res) => {
 
-  //GET Method
+  //GET method
   if(req.method === 'GET'){
     if (req.url === '/'){
       fs.readFile(`./public/index.html`, (err, data) => {
@@ -27,6 +28,8 @@ const server = http.createServer((req, res) => {
 
   //POST method
   if(req.method === 'POST'){
+
+
     req.on('data', (data) => {
       let elementObj = querystring.parse(data.toString());
       element = elementObj.elementName;
@@ -50,13 +53,18 @@ const server = http.createServer((req, res) => {
 <p><a href="/">back</a></p>
 </body>
 </html>`);
+      ++number;
+      console.log('number',number);
 
+      let counter = `<h3>There are ${number}</h3>`;
       let indexRead = fs.readFileSync('./public/index.html', 'utf-8');
+      console.log(indexRead);
       let elementHTML = `<li>
 <a href="/${element}.html">${element}</a>
 </li>
 <!-- new  -->`;
       let elementInsert = indexRead.replace(/(<!-- new  -->)/g, elementHTML);
+      elementInsert = elementInsert.replace(/(<h3>There are [^A-Z])/g, `<h3>There are ${number}`);
       console.log(elementInsert);
 
       fs.writeFile('./public/index.html', elementInsert, 'utf-8', (err) => {
