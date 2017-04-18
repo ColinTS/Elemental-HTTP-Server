@@ -1,5 +1,4 @@
 /*jshint esversion: 6*/
-let number = 2;
 const http = require('http');
 const fs = require('fs');
 const querystring = require('querystring');
@@ -29,7 +28,6 @@ const server = http.createServer((req, res) => {
   //POST method
   if(req.method === 'POST'){
 
-
     req.on('data', (data) => {
       let elementObj = querystring.parse(data.toString());
       element = elementObj.elementName;
@@ -56,11 +54,27 @@ const server = http.createServer((req, res) => {
 
       let indexRead = fs.readFileSync('./public/index.html', 'utf-8');
       let elementHTML = `<li>
-<a href="/${element}.html">${element}</a>
+      <a href="/${element}.html">${element}</a>
 </li>
 <!-- new  -->`;
-      ++number;
+
+
+
+
       let elementInsert = indexRead.replace(/(<!-- new  -->)/g, elementHTML);
+
+      //link counter
+      let number = 1;
+      console.log('array',indexRead);
+      let indexSplit = indexRead.split('\n');
+      console.log(indexSplit);
+      for(let i = 0; i < indexSplit.length; i++){
+        if(indexSplit[i].endsWith('</a>')){
+          number++;
+        }
+      }
+
+
       elementInsert = elementInsert.replace(/(<h3>There are [^A-Z])/g, `<h3>There are ${number}`);
 
       fs.writeFile('./public/index.html', elementInsert, 'utf-8', (err) => {
@@ -114,9 +128,9 @@ const server = http.createServer((req, res) => {
 
     req.on('data', (data) => {
       // remove element HTML file
-      // fs.unlink(`./public${req.url}`, (err) => {
-      //   console.log('deleted');
-      // });
+      fs.unlink(`./public${req.url}`, (err) => {
+        console.log('deleted');
+      });
       let str = req.url;
       str = str.slice(1,-5);
 
@@ -124,30 +138,32 @@ const server = http.createServer((req, res) => {
       //edit index HTML file to remove link and decrease number by 1.
       let indexRead = fs.readFileSync('./public/index.html', 'utf-8');
       indexRead = indexRead.split('\n');
-      console.log(`<a href="${req.url}">${str.charAt(0).toUpperCase() + str.slice(1)}</a>`);
-      console.log(indexRead.indexOf(`      <a href="${req.url}">${str.charAt(0).toUpperCase() + str.slice(1)}</a>`));
       let updateIndex = indexRead.splice(indexRead.indexOf(`      <a href="${req.url}">${str.charAt(0).toUpperCase() + str.slice(1)}</a>`) -1, 1);
       updateIndex = indexRead.splice(indexRead.indexOf(`      <a href="${req.url}">${str.charAt(0).toUpperCase() + str.slice(1)}</a>`) + 1, 1);
       updateIndex = indexRead.splice(indexRead.indexOf(`      <a href="${req.url}">${str.charAt(0).toUpperCase() + str.slice(1)}</a>`) , 1);
 
+      //link counter
+      let number = 0;
+      console.log('array',indexRead);
+      for(let i = 0; i < indexRead.length; i++){
+        if(indexRead[i].endsWith('</a>')){
+          number++;
+        }
+      }
 
       indexRead = indexRead.join('\n').replace(/(<h3>There are [^A-Z])/g, `<h3>There are ${number}`);
-      console.log('updated', indexRead);
+      // console.log('updated', indexRead);
 
 
-
-
-      // fs.writeFile('./public/index.html', indexRead, 'utf-8', (err) => {
-      //     console.log('modified index!');
-      // });
+      fs.writeFile('./public/index.html', indexRead, 'utf-8', (err) => {
+          console.log('modified index!');
+      });
 
 
     res.end(data);
     });
 
   }
-
-
 
 });
 
